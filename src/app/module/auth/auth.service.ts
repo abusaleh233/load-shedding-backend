@@ -4,6 +4,7 @@ import {prisma }from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import jwtUtils from "../../utils/jwt.js";
 import type { TLoginResponse, TLoginUser, TRegisterUser } from "./auth.interface.js";
+import {JwtPayload, SignOptions } from "jsonwebtoken";
 
 
 const registerUser = async (payload: TRegisterUser) => {
@@ -65,13 +66,13 @@ const loginUser = async (payload: TLoginUser): Promise<TLoginResponse> => {
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
 		config.jwt_access_secret,
-		config.jwt_access_expires_in
+		config.jwt_access_expires_in as SignOptions
 	);
 
 	const refreshToken = jwtUtils.createToken(
 		jwtPayload,
 		config.jwt_refresh_secret,
-		config.jwt_refresh_expires_in
+		config.jwt_refresh_expires_in as SignOptions
 	);
 
 	return {
