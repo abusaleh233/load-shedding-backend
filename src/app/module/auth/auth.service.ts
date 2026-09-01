@@ -1,9 +1,10 @@
 import bcrypt from "bcrypt";
 import config from "../../config/index.js";
-import prisma from "../../lib/prisma.js";
+import {prisma }from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import jwtUtils from "../../utils/jwt.js";
 import type { TLoginResponse, TLoginUser, TRegisterUser } from "./auth.interface.js";
+
 
 const registerUser = async (payload: TRegisterUser) => {
 	const isUserExists = await prisma.user.findUnique({
