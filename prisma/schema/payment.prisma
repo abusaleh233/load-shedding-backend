@@ -1,0 +1,34 @@
+model Bill {
+  id          String     @id @default(uuid())
+  billNumber  String     @unique
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount      Float
+  dueDate     DateTime
+  month       String
+  year        Int
+  status      BillStatus @default(UNPAID)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  payments    Payment[]
+
+  @@map("bills")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  transactionId String        @unique
+  billId        String
+  bill          Bill          @relation(fields: [billId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  method        PaymentMethod @default(STRIPE)
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}

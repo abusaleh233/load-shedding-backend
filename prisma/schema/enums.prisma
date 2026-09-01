@@ -1,0 +1,55 @@
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CONSUMER
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum MeterType {
+  PREPAID
+  POSTPAID
+}
+
+enum AreaStatus {
+  NORMAL
+  HIGH_LOAD
+  CRITICAL
+}
+
+enum ScheduleType {
+  ROUTINE
+  EMERGENCY
+  MAINTENANCE
+}
+
+enum ScheduleStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum BillStatus {
+  UNPAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  STRIPE
+  BKASH
+  NAGAD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}

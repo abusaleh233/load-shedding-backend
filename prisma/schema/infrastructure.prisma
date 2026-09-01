@@ -1,0 +1,30 @@
+model Substation {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  code        String   @unique
+  capacityMW  Float
+  location    String
+  contactNo   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  areas       Area[]
+
+  @@map("substations")
+}
+
+model Area {
+  id           String     @id @default(uuid())
+  name         String
+  code         String     @unique
+  substationId String
+  substation   Substation @relation(fields: [substationId], references: [id], onDelete: Cascade)
+  status       AreaStatus @default(NORMAL)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  users        User[]
+  schedules    Schedule[]
+
+  @@map("areas")
+}
