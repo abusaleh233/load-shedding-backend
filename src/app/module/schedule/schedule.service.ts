@@ -1,6 +1,6 @@
-import prisma from "../../lib/prisma.js";
-import redisClient from "../../lib/redis.js";
-import AppError from "../../utils/AppError.js";
+import {prisma} from "../../lib/prisma";
+import {redisClient} from "../../lib/redis";
+import AppError from "../../utils/AppError";
 
 const CACHE_KEY = "load_shedding_schedules";
 

@@ -1,0 +1,203 @@
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  CONSUMER
+}
+
+enum AccountStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum MeterType {
+  PREPAID
+  POSTPAID
+}
+
+enum AreaStatus {
+  NORMAL
+  HIGH_LOAD
+  CRITICAL
+}
+
+enum ScheduleType {
+  ROUTINE
+  EMERGENCY
+  MAINTENANCE
+}
+
+enum ScheduleStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum BillStatus {
+  UNPAID
+  PAID
+  OVERDUE
+}
+
+enum PaymentMethod {
+  STRIPE
+  BKASH
+  NAGAD
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+model Substation {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  code       String   @unique
+  capacityMW Float
+  location   String
+  contactNo  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  areas Area[]
+
+  @@map("substations")
+}
+
+model Area {
+  id           String     @id @default(uuid())
+  name         String
+  code         String     @unique
+  substationId String
+  substation   Substation @relation(fields: [substationId], references: [id], onDelete: Cascade)
+  status       AreaStatus @default(NORMAL)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  users     User[]
+  schedules Schedule[]
+
+  @@map("areas")
+}
+
+model Bill {
+  id         String     @id @default(uuid())
+  billNumber String     @unique
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount     Float
+  dueDate    DateTime
+  month      String
+  year       Int
+  status     BillStatus @default(UNPAID)
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  payments Payment[]
+
+  @@map("bills")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  transactionId String        @unique
+  billId        String
+  bill          Bill          @relation(fields: [billId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount        Float
+  method        PaymentMethod @default(STRIPE)
+  status        PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Schedule {
+  id        String         @id @default(uuid())
+  title     String
+  areaId    String
+  area      Area           @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  startTime DateTime
+  endTime   DateTime
+  date      DateTime       @db.Date
+  type      ScheduleType   @default(ROUTINE)
+  status    ScheduleStatus @default(PENDING)
+  reason    String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  outageLogs OutageLog[]
+
+  @@map("schedules")
+}
+
+model OutageLog {
+  id          String    @id @default(uuid())
+  scheduleId  String?
+  schedule    Schedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+  actualStart DateTime
+  actualEnd   DateTime?
+  durationMin Int?
+  notes       String?
+  createdAt   DateTime  @default(now())
+
+  @@map("outage_logs")
+}
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(uuid())
+  name        String
+  email       String        @unique
+  password    String
+  phone       String?
+  role        UserRole      @default(CONSUMER)
+  status      AccountStatus @default(ACTIVE)
+  consumerId  String?       @unique
+  meterNumber String?       @unique
+  meterType   MeterType?    @default(PREPAID)
+  areaId      String?
+  area        Area?         @relation(fields: [areaId], references: [id], onDelete: SetNull)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  bills     Bill[]
+  payments  Payment[]
+  auditLogs AuditLog[]
+
+  @@map("users")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@map("audit_logs")
+}

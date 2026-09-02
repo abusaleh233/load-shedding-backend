@@ -3,19 +3,19 @@ import { z } from "zod";
 const createScheduleValidationSchema = z.object({
 	body: z.object({
 		substationId: z.string({
-			required_error: "Substation ID is required",
+			message: "Substation ID is required",
 		}),
 		areaName: z.string({
-			required_error: "Area name is required",
+			message: "Area name is required",
 		}),
 		startTime: z.string({
-			required_error: "Start time is required",
+			message: "Start time is required",
 		}),
 		endTime: z.string({
-			required_error: "End time is required",
+			message: "End time is required",
 		}),
 		date: z.string({
-			required_error: "Date is required",
+			message: "Date is required",
 		}),
 		status: z.enum(["SCHEDULED", "ACTIVE", "COMPLETED", "CANCELLED"]).optional(),
 	}),

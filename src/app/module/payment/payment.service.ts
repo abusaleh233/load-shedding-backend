@@ -1,6 +1,6 @@
-import config from "../../../config/index.js";
-import prisma from "../../lib/prisma.js";
-import AppError from "../../utils/AppError.js";
+import config from "../../config/index";
+import {prisma} from "../../lib/prisma";
+import AppError from "../../utils/AppError";
 
 const createPaymentIntent = async (userId: string, amount: number) => {
 	const user = await prisma.user.findUnique({
@@ -54,8 +54,15 @@ const getUserPaymentHistory = async (userId: string) => {
 	return result;
 };
 
+const handleStripeWebhook = async (rawBody: Buffer, signature: string) => {
+	// Stripe Event Verify & Processing Logic
+	// উদাহরণস্বরূপ: Stripe event ডিকোড করে ডাটাবেজে পেমেন্ট স্ট্যাটাস 'PAID' করা
+	return { received: true };
+};
+
 export const PaymentService = {
 	createPaymentIntent,
 	verifyPaymentStatus,
 	getUserPaymentHistory,
+    handleStripeWebhook,
 };

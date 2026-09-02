@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import config from "../config/index.js";
-import prisma from "../lib/prisma.js";
+import {prisma} from "../lib/prisma.js";
 import AppError from "../utils/AppError.js";
-import { verifyToken } from "../utils/jwt.js";
+import jwtUtils from "../utils/jwt.js";
 
 declare global {
 	namespace Express {
@@ -17,7 +17,7 @@ declare global {
 }
 
 const auth = (...requiredRoles: string[]) => {
-	return async (req: Request, res: Response, next: NextFunction) => {
+	return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const token = req.headers.authorization?.split(" ")[1];
 
@@ -25,8 +25,8 @@ const auth = (...requiredRoles: string[]) => {
 				throw new AppError(401, "You are not authorized! Token missing.");
 			}
 
-			// Verify Token
-			const decoded = verifyToken(
+			// Verify Token using jwtUtils
+			const decoded = jwtUtils.verifyToken(
 				token,
 				config.jwt_access_secret
 			) as { id: string; email: string; role: string };

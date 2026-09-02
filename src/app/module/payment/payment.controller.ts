@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync.js";
-import sendResponse from "../../utils/sendResponse.js";
-import { PaymentService } from "./payment.service.js";
+import {catchAsync} from "../../utils/catchAsync";
+import {sendResponse} from "../../utils/sendResponse";
+import { PaymentService } from "./payment.service";
 
 const createPaymentIntent = catchAsync(async (req: Request, res: Response) => {
 	const userId = req.user?.id as string;
@@ -43,8 +43,23 @@ const getUserPaymentHistory = catchAsync(async (req: Request, res: Response) => 
 	});
 });
 
+const webhook = catchAsync(async (req: Request, res: Response) => {
+	const signature = req.headers["stripe-signature"] as string;
+
+	// req.body এখানে raw Buffer হিসেবে আসবে
+	const result = await PaymentService.handleStripeWebhook(req.body, signature);
+
+	sendResponse(res, {
+		statusCode: 200,
+		success: true,
+		message: "Webhook processed successfully!",
+		data: result,
+	});
+});
+
 export const PaymentController = {
 	createPaymentIntent,
 	verifyPaymentStatus,
 	getUserPaymentHistory,
+    webhook,
 };

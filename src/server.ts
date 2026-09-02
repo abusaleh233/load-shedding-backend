@@ -1,41 +1,32 @@
-import type { Server } from "node:http";
-import app from "./app";
-import config from "./app/config";
+import app from "./app.js";
+import config from "./app/config/index.js";
+import {prisma} from "./app/lib/prisma.js";
+// import {redisClient} from "./app/lib/redis.js";
+import { seedDatabase } from "../prisma/seed.js"; // সিড ফাংশন ইমপোর্ট করা হলো
 
-let server: Server;
+const PORT = config.port || 5000;
 
-async function main() {
+const main = async () => {
 	try {
-		const port = config.port || 5000;
+		await prisma.$connect();
+		console.log("Connected to the database successfully.");
 
-		server = app.listen(port, () => {
-			console.log(
-				`🚀 Server is running on port ${port} in ${config.node_env || "development"} mode`
-			);
+		// if (!redisClient.isOpen) {
+		// 	await redisClient.connect();
+		// 	console.log("Redis Connected Successfully.");
+		// }
+
+		// Run Database Seeding during startup
+		await seedDatabase();
+
+		app.listen(PORT, () => {
+			console.log(`Server is running on port ${PORT}`);
 		});
 	} catch (error) {
-		console.error("❌ Failed to start server:", error);
+		console.error("Error starting the server:", error);
+		await prisma.$disconnect();
 		process.exit(1);
 	}
-}
+};
 
-// Start Server Execution
 main();
-
-// Handling Unhandled Promise Rejections (e.g., Database connection loss)
-process.on("unhandledRejection", (reason, promise) => {
-	console.error("💥 UNHANDLED REJECTION! Shutting down...", reason);
-	if (server) {
-		server.close(() => {
-			process.exit(1);
-		});
-	} else {
-		process.exit(1);
-	}
-});
-
-// Handling Uncaught Exceptions (e.g., Reference errors, syntax runtime bugs)
-process.on("uncaughtException", (error) => {
-	console.error("💥 UNCAUGHT EXCEPTION! Shutting down...", error);
-	process.exit(1);
-});

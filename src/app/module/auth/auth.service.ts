@@ -1,11 +1,10 @@
 import bcrypt from "bcrypt";
+import type { SignOptions } from "jsonwebtoken";
 import config from "../../config/index.js";
-import {prisma }from "../../lib/prisma.js";
+import {prisma} from "../../lib/prisma.js";
 import AppError from "../../utils/AppError.js";
 import jwtUtils from "../../utils/jwt.js";
 import type { TLoginResponse, TLoginUser, TRegisterUser } from "./auth.interface.js";
-import {JwtPayload, SignOptions } from "jsonwebtoken";
-
 
 const registerUser = async (payload: TRegisterUser) => {
 	const isUserExists = await prisma.user.findUnique({
@@ -65,14 +64,14 @@ const loginUser = async (payload: TLoginUser): Promise<TLoginResponse> => {
 
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
-		config.jwt_access_secret,
-		config.jwt_access_expires_in as SignOptions
+		config.jwt_access_secret as string,
+		config.jwt_access_expires_in as SignOptions["expiresIn"]
 	);
 
 	const refreshToken = jwtUtils.createToken(
 		jwtPayload,
-		config.jwt_refresh_secret,
-		config.jwt_refresh_expires_in as SignOptions
+		config.jwt_refresh_secret as string,
+		config.jwt_refresh_expires_in as SignOptions["expiresIn"]
 	);
 
 	return {
@@ -88,7 +87,7 @@ const loginUser = async (payload: TLoginUser): Promise<TLoginResponse> => {
 };
 
 const refreshToken = async (token: string) => {
-	const decoded = jwtUtils.verifyToken(token, config.jwt_refresh_secret);
+	const decoded = jwtUtils.verifyToken(token, config.jwt_refresh_secret as string);
 
 	const user = await prisma.user.findUnique({
 		where: { id: decoded.id },
@@ -106,8 +105,8 @@ const refreshToken = async (token: string) => {
 
 	const accessToken = jwtUtils.createToken(
 		jwtPayload,
-		config.jwt_access_secret,
-		config.jwt_access_expires_in
+		config.jwt_access_secret as string,
+		config.jwt_access_expires_in as SignOptions["expiresIn"]
 	);
 
 	return { accessToken };

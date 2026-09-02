@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import catchAsync from "../../utils/catchAsync.js";
-import sendResponse from "../../utils/sendResponse.js";
+import {catchAsync} from "../../utils/catchAsync.js";
+import {sendResponse} from "../../utils/sendResponse.js";
 import { ScheduleService } from "./schedule.service.js";
 
 const createSchedule = catchAsync(async (req: Request, res: Response) => {
